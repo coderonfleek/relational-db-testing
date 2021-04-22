@@ -2,7 +2,7 @@ const { GenericContainer } = require("testcontainers");
 const mysql = require('mysql');
 const { createPool } = require('mysql2/promise')
 
-jest.setTimeout(3000000);
+jest.setTimeout(300000);
 
 describe("GenericContainer", () => {
 
