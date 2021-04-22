@@ -1,37 +1,45 @@
-const { GenericContainer } = require("testcontainers");
-const mysql = require('mysql');
-const { createPool } = require('mysql2/promise')
+const { GenericContainer, Wait } = require("testcontainers");
+//const mysql = require('mysql');
+//const { createPool } = require('mysql2/promise')
+const { Client } = require('pg')
 
 jest.setTimeout(3000000);
 
 describe("GenericContainer", () => {
 
     let container;
-    let connection;
+    let client;
 
     beforeAll(async () => {
-        container = await new GenericContainer('mysql', '5.7')
-        .withExposedPorts(3306)
-        .withStartupTimeout(1200000)
-        .withEnv('MYSQL_ALLOW_EMPTY_PASSWORD', '1')
-        .withEnv('MYSQL_DATABASE', 'testdb')
-        .start();
+        container = await new GenericContainer("postgres")
+        .withExposedPorts(5432)
+        .withWaitStrategy(Wait.forLogMessage("server started")).start();
         console.log('Container started');
     });
 
     beforeEach(async () => {
-        connection = await createPool({ 
+        client = new Client({
+            user: 'dbuser',
+            host: container.getHost(),
+            database: 'mydb',
+            password: 'secretpassword',
+            port: container.getMappedPort(5432),
+        })
+        await client.connect(); 
+        /* connection = await createPool({ 
             host: container.getHost(), 
             user: 'root', password: '', 
             port: container.getMappedPort(3306) 
-        })
+        }) */
         console.log('Connected to database');
     })
 
     it("works", async () => {
         try {
+            const res = await client.query('SELECT $1::text as message', ['Hello world!'])
+            console.log(res.rows[0].message)
             
-            console.log(await (connection.query('SELECT count(*) FROM information_schema.columns')))
+            //console.log(await (connection.query('SELECT count(*) FROM information_schema.columns')))
 
         } catch (error) {
             console.log(error);
