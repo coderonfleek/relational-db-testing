@@ -1,6 +1,6 @@
 const { GenericContainer, Wait } = require("testcontainers");
 //const mysql = require('mysql');
-//const { createPool } = require('mysql2/promise')
+const { createPool } = require('mysql2/promise')
 const { Client } = require('pg')
 
 jest.setTimeout(3000000);
@@ -8,38 +8,32 @@ jest.setTimeout(3000000);
 describe("GenericContainer", () => {
 
     let container;
-    let client;
+    let connection;
 
-    beforeAll(async () => {
-        container = await new GenericContainer("postgres")
-        .withExposedPorts(5432)
-        .withWaitStrategy(Wait.forLogMessage("server started")).start();
+    /* beforeAll(async () => {
+        container = await new GenericContainer('mysql', '5.7')
+        .withExposedPorts(3306)
+        .withStartupTimeout(120000)
+        .withEnv('MYSQL_ALLOW_EMPTY_PASSWORD', '1')
+        .withEnv('MYSQL_DATABASE', 'testdb')
+        .start();
         console.log('Container started');
-    });
+    }); */
 
     beforeEach(async () => {
-        client = new Client({
-            user: 'dbuser',
-            host: container.getHost(),
-            database: 'mydb',
-            password: 'secretpassword',
-            port: container.getMappedPort(5432),
+        
+        connection = await createPool({ 
+            host: "mysql-28850-0.cloudclusters.net", 
+            user: 'testuser', password: 'password', 
+            port: 28850
         })
-        await client.connect(); 
-        /* connection = await createPool({ 
-            host: container.getHost(), 
-            user: 'root', password: '', 
-            port: container.getMappedPort(3306) 
-        }) */
         console.log('Connected to database');
     })
 
     it("works", async () => {
         try {
-            const res = await client.query('SELECT $1::text as message', ['Hello world!'])
-            console.log(res.rows[0].message)
             
-            //console.log(await (connection.query('SELECT count(*) FROM information_schema.columns')))
+            console.log(await (connection.query('SELECT count(*) FROM information_schema.columns')))
 
         } catch (error) {
             console.log(error);
@@ -53,8 +47,8 @@ describe("GenericContainer", () => {
      connection.end();
    })
 
-   afterAll(async () => {
+   /* afterAll(async () => {
      await container.stop();
-   })
+   }) */
 
 });

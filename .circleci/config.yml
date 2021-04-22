@@ -6,8 +6,6 @@ jobs:
       - image: circleci/node:12
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
       - run:
           name: Update NPM
           command: "sudo npm install -g npm"
