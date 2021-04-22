@@ -12,6 +12,7 @@ describe("GenericContainer", () => {
     beforeAll(async () => {
         container = await new GenericContainer('mysql', '5.7')
         .withExposedPorts(3306)
+        .withStartupTimeout(120000)
         .withEnv('MYSQL_ALLOW_EMPTY_PASSWORD', '1')
         .withEnv('MYSQL_DATABASE', 'testdb')
         .start();
