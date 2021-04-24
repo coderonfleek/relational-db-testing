@@ -1,9 +1,5 @@
-const { GenericContainer, Wait } = require("testcontainers");
-//const mysql = require('mysql');
 const { createPool } = require('mysql2/promise')
 const faker = require('faker');
-
-jest.setTimeout(3000000);
 
 describe("Database Tests", () => {
 
